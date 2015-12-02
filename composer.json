@@ -1,0 +1,15 @@
+{
+	"name": "vsek/script-loader",
+	"description": "Načítání a minifikace js a css do HTML",
+	"authors": [
+		{
+			"name": "Václav Stodůlka"
+		},
+		{
+			"name": "Web No Limit",
+			"homepage": "http://www.webnolimit.cz/"
+		}
+	],
+        "type": "project",
+	"license": ["BSD-3-Clause", "GPL-2.0", "GPL-3.0"]
+}

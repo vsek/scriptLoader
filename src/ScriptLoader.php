@@ -4,6 +4,7 @@ namespace App\ScriptLoader;
 
 use Nette\Application\UI\Control;
 use Nette\Caching\Cache;
+use Nette\Utils\Strings;
 
 /**
  * Description of ScriptLoader
@@ -12,12 +13,28 @@ use Nette\Caching\Cache;
  */
 class ScriptLoader extends Control{
     
-    private $cache;
+    private $usedModule = false;
+    private $ignoreModule = array('Front');
+    
+    public function setModule($module){
+        $this->usedModule = $module;
+    }
+    
+    public function getPostfix($isMobile){
+        $return = '';
+        if($this->usedModule && !in_array($this->usedModule, $this->ignoreModule)){
+            $return .= '_' . Strings::lower($this->usedModule);
+        }
+        if($isMobile){
+            $return .= '_mobile';
+        }
+        return $return;
+    }
     
     public function renderCssCritical($type = null, $isMobile = false){
 
         
-        $config = $this->getPresenter()->context->parameters['scriptLoader']['css' . ($isMobile ? '_mobile' : '')];
+        $config = $this->getPresenter()->context->parameters['scriptLoader']['css' . $this->getPostfix($isMobile)];
 
         if(is_null($type)){ $type = 'critical'; }
 
@@ -32,7 +49,7 @@ class ScriptLoader extends Control{
 
                 
                 $cache = new Cache($this->getPresenter()->storage, 'scriptLoader');
-                $cssFile = $cache->load('css-' . $type . ($isMobile ? '_mobile' : ''));
+                $cssFile = $cache->load('css-' . $type . $this->getPostfix($isMobile));
                 if(is_null($cssFile)){
                     //zminimalizuju
                     $cssFile = '';
@@ -44,7 +61,7 @@ class ScriptLoader extends Control{
                         }
                     }
 
-                    $cache->save('css-' . $type . ($isMobile ? '_mobile' : ''), $cssFile, array(
+                    $cache->save('css-' . $type . $this->getPostfix($isMobile), $cssFile, array(
                         Cache::FILES => $cssFiles,
                     ));
                 }
@@ -59,7 +76,7 @@ class ScriptLoader extends Control{
             $this->renderCssCritical($type, $isMobile);
         }else{
         
-            $config = $this->getPresenter()->context->parameters['scriptLoader']['css' . ($isMobile ? '_mobile' : '')];
+            $config = $this->getPresenter()->context->parameters['scriptLoader']['css' . $this->getPostfix($isMobile)];
             
             if(!$this->getPresenter()->context->parameters['scriptLoader']['enable']){
                 if(!is_null($config['default'])){
@@ -70,7 +87,7 @@ class ScriptLoader extends Control{
             }else{
 
                 $cache = new Cache($this->getPresenter()->storage, 'scriptLoader');
-                if(is_null($cache->load('css' . ($isMobile ? '_mobile' : '')))){
+                if(is_null($cache->load('css' . $this->getPostfix($isMobile)))){
                     //zminimalizuju
                     $cssFile = '';
                     $cssFiles = array();
@@ -81,7 +98,7 @@ class ScriptLoader extends Control{
                         }
                     }
 
-                    $cache->save('css' . ($isMobile ? '_mobile' : ''), true, array(
+                    $cache->save('css' . $this->getPostfix($isMobile), true, array(
                         Cache::FILES => $cssFiles,
                     ));
 
@@ -107,7 +124,7 @@ class ScriptLoader extends Control{
     
     public function renderJsCritical(){
 
-        $config = $this->getPresenter()->context->parameters['scriptLoader']['js'];
+        $config = $this->getPresenter()->context->parameters['scriptLoader']['js' . $this->getPostfix(false)];
         
         if(!$this->getPresenter()->context->parameters['scriptLoader']['enable']){
             foreach($config['critical'] as $js){
@@ -116,7 +133,7 @@ class ScriptLoader extends Control{
         }else{
         
             $cache = new Cache($this->getPresenter()->storage, 'scriptLoader');
-            $jsFile = $cache->load('javascript-critical');
+            $jsFile = $cache->load('javascript-critical' . $this->getPostfix(false));
             if(is_null($jsFile)){
                 //zminimalizuju
                 $jsFile = '';
@@ -126,7 +143,7 @@ class ScriptLoader extends Control{
                     $jsFiles[] = $this->getPresenter()->context->parameters['wwwDir'] . '/' . $js;
                 }
                 
-                $cache->save('javascript-critical', $jsFile, array(
+                $cache->save('javascript-critical' . $this->getPostfix(false), $jsFile, array(
                     Cache::FILES => $jsFiles,
                 ));
             }
@@ -136,7 +153,7 @@ class ScriptLoader extends Control{
     }
     
     public function renderJs($isMobile = false){
-        $config = $this->getPresenter()->context->parameters['scriptLoader']['js' . ($isMobile ? '_mobile' : '')];
+        $config = $this->getPresenter()->context->parameters['scriptLoader']['js' . $this->getPostfix($isMobile)];
         
         if(!$this->getPresenter()->context->parameters['scriptLoader']['enable']){
             if(!is_null($config)){
@@ -146,7 +163,7 @@ class ScriptLoader extends Control{
             }
         }else{
             $cache = new Cache($this->getPresenter()->storage, 'scriptLoader');
-            if(is_null($cache->load('javascript' . ($isMobile ? '_mobile' : '')))){
+            if(is_null($cache->load('javascript' . $this->getPostfix($isMobile)))){
                 //zminimalizuju
                 $jsFile = '';
                 $jsFiles = array();
@@ -157,11 +174,11 @@ class ScriptLoader extends Control{
                     }
                 }
                 
-                $cache->save('javascript' . ($isMobile ? '_mobile' : ''), true, array(
+                $cache->save('javascript' . $this->getPostfix($isMobile), true, array(
                     Cache::FILES => $jsFiles,
                 ));
 
-                file_put_contents($this->getPresenter()->context->parameters['wwwDir'] . '/js/js' . ($isMobile ? '_mobile' : '') . '.js', $jsFile);
+                file_put_contents($this->getPresenter()->context->parameters['wwwDir'] . '/js/js' . $this->getPostfix($isMobile) . '.js', $jsFile);
             }
 
             /*echo('<script>
@@ -176,7 +193,7 @@ class ScriptLoader extends Control{
                 else window.addEventListener(\'load\', cb);
               </script>');*/
             
-            echo '<script src="/js/js' . ($isMobile ? '_mobile' : '') . '.js" defer></script>';
+            echo '<script src="/js/js' . $this->getPostfix($isMobile) . '.js" defer></script>';
         }
     }
 }

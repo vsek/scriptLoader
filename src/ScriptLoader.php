@@ -102,13 +102,13 @@ class ScriptLoader extends Control{
                         Cache::FILES => $cssFiles,
                     ));
 
-                    file_put_contents($this->getPresenter()->context->parameters['wwwDir'] . '/css/css.css', $cssFile);
+                    file_put_contents($this->getPresenter()->context->parameters['wwwDir'] . '/css/css'  . $this->getPostfix($isMobile) . '.css', $cssFile);
                 }
                 
                 echo('<script>
           var cb = function() {
             var l = document.createElement(\'link\'); l.rel = \'stylesheet\';
-            l.href = \'/css/css.css\';
+            l.href = \'/css/css'  . $this->getPostfix($isMobile) . '.css\';
             var h = document.getElementsByTagName(\'head\')[0]; h.parentNode.insertBefore(l, h);
           };
           var raf = requestAnimationFrame || mozRequestAnimationFrame ||

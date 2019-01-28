@@ -12,14 +12,14 @@ use Nette\Utils\Strings;
  * @author Vsek
  */
 class ScriptLoader extends Control{
-    
+
     private $usedModule = false;
     private $ignoreModule = array('Front');
-    
+
     public function setModule($module){
         $this->usedModule = $module;
     }
-    
+
     public function getPostfix($isMobile){
         $return = '';
         if($this->usedModule && !in_array($this->usedModule, $this->ignoreModule)){
@@ -30,10 +30,10 @@ class ScriptLoader extends Control{
         }
         return $return;
     }
-    
+
     public function renderCssCritical($type = null, $isMobile = false){
 
-        
+
         $config = $this->getPresenter()->context->parameters['scriptLoader']['css' . $this->getPostfix($isMobile)];
 
         if(is_null($type)){ $type = 'critical'; }
@@ -42,12 +42,12 @@ class ScriptLoader extends Control{
             if(!$this->getPresenter()->context->parameters['scriptLoader']['enable']){
                 if(!is_null($config[$type])){
                     foreach($config[$type] as $css){
-                        echo '<link rel="stylesheet" media="screen,projection,tv" href="/' . $css . '">';
+                        echo '<link rel="stylesheet" media="screen,projection,tv" href="/' . $css . '?v=' . md5($this->getPresenter()->context->parameters['wwwDir'] . '/css/' . $css) . '">';
                     }
                 }
             }else{
 
-                
+
                 $cache = new Cache($this->getPresenter()->storage, 'scriptLoader');
                 $cssFile = $cache->load('css-' . $type . $this->getPostfix($isMobile));
                 if(is_null($cssFile)){
@@ -70,18 +70,18 @@ class ScriptLoader extends Control{
             }
         }
     }
-    
+
     public function renderCss($critical = false, $type = null, $isMobile = false){
         if($critical){
             $this->renderCssCritical($type, $isMobile);
         }else{
-        
+
             $config = $this->getPresenter()->context->parameters['scriptLoader']['css' . $this->getPostfix($isMobile)];
-            
+
             if(!$this->getPresenter()->context->parameters['scriptLoader']['enable']){
                 if(!is_null($config['default'])){
                     foreach($config['default'] as $css){
-                        echo '<link rel="stylesheet" media="screen,projection,tv" href="/' . $css . '">';
+                        echo '<link rel="stylesheet" media="screen,projection,tv" href="/' . $css . '?v=' . md5($this->getPresenter()->context->parameters['wwwDir'] . '/css/' . $css) . '">';
                     }
                 }
             }else{
@@ -104,11 +104,11 @@ class ScriptLoader extends Control{
 
                     file_put_contents($this->getPresenter()->context->parameters['wwwDir'] . '/css/css'  . $this->getPostfix($isMobile) . '.css', $cssFile);
                 }
-                
+
                 echo('<script>
           var cb = function() {
             var l = document.createElement(\'link\'); l.rel = \'stylesheet\';
-            l.href = \'/css/css'  . $this->getPostfix($isMobile) . '.css\';
+            l.href = \'/css/css'  . $this->getPostfix($isMobile) . '.css?' . md5($this->getPresenter()->context->parameters['wwwDir'] . '/css/css'  . $this->getPostfix($isMobile) . '.css') . '\';
             var h = document.getElementsByTagName(\'head\')[0]; h.parentNode.insertBefore(l, h);
           };
           var raf = requestAnimationFrame || mozRequestAnimationFrame ||
@@ -121,17 +121,17 @@ class ScriptLoader extends Control{
             }
         }
     }
-    
+
     public function renderJsCritical(){
 
         $config = $this->getPresenter()->context->parameters['scriptLoader']['js' . $this->getPostfix(false)];
-        
+
         if(!$this->getPresenter()->context->parameters['scriptLoader']['enable']){
             foreach($config['critical'] as $js){
-                echo '<script src="/' . $js . '"></script>';
+                echo '<script src="/' . $js . '?v=' . md5($this->getPresenter()->context->parameters['wwwDir'] . '/js/' . $js) . '"></script>';
             }
         }else{
-        
+
             $cache = new Cache($this->getPresenter()->storage, 'scriptLoader');
             $jsFile = $cache->load('javascript-critical' . $this->getPostfix(false));
             if(is_null($jsFile)){
@@ -142,7 +142,7 @@ class ScriptLoader extends Control{
                     $jsFile .= Minifier::minify(file_get_contents($this->getPresenter()->context->parameters['wwwDir'] . '/' . $js), array('flaggedComments' => false));
                     $jsFiles[] = $this->getPresenter()->context->parameters['wwwDir'] . '/' . $js;
                 }
-                
+
                 $cache->save('javascript-critical' . $this->getPostfix(false), $jsFile, array(
                     Cache::FILES => $jsFiles,
                 ));
@@ -151,14 +151,14 @@ class ScriptLoader extends Control{
             echo '<script type="text/javascript">' . $jsFile . '</script>';
         }
     }
-    
+
     public function renderJs($isMobile = false){
         $config = $this->getPresenter()->context->parameters['scriptLoader']['js' . $this->getPostfix($isMobile)];
-        
+
         if(!$this->getPresenter()->context->parameters['scriptLoader']['enable']){
             if(!is_null($config)){
                 foreach($config as $js){
-                    echo '<script src="/' . $js . '"></script>';
+                    echo '<script src="/' . $js . '?v=' . md5($this->getPresenter()->context->parameters['wwwDir'] . '/js/' . $js) . '"></script>';
                 }
             }
         }else{
@@ -173,7 +173,7 @@ class ScriptLoader extends Control{
                         $jsFiles[] = $this->getPresenter()->context->parameters['wwwDir'] . '/' . $js;
                     }
                 }
-                
+
                 $cache->save('javascript' . $this->getPostfix($isMobile), true, array(
                     Cache::FILES => $jsFiles,
                 ));
@@ -192,8 +192,8 @@ class ScriptLoader extends Control{
                 if (raf) raf(cb);
                 else window.addEventListener(\'load\', cb);
               </script>');*/
-            
-            echo '<script src="/js/js' . $this->getPostfix($isMobile) . '.js" defer></script>';
+
+            echo '<script src="/js/js' . $this->getPostfix($isMobile) . '.js?v=' . md5($this->getPresenter()->context->parameters['wwwDir'] . '/js/js' . $this->getPostfix($isMobile) . '.js') . '" defer></script>';
         }
     }
 }

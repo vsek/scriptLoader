@@ -42,7 +42,7 @@ class ScriptLoader extends Control{
             if(!$this->getPresenter()->context->parameters['scriptLoader']['enable']){
                 if(!is_null($config[$type])){
                     foreach($config[$type] as $css){
-                        echo '<link rel="stylesheet" media="screen,projection,tv" href="/' . $css . '?v=' . md5($this->getPresenter()->context->parameters['wwwDir'] . '/css/' . $css) . '">';
+                        echo '<link rel="stylesheet" media="screen,projection,tv" href="/' . $css . '?v=' . md5(file_get_contents($this->getPresenter()->context->parameters['wwwDir'] . '/' . $css)) . '">';
                     }
                 }
             }else{
@@ -81,7 +81,7 @@ class ScriptLoader extends Control{
             if(!$this->getPresenter()->context->parameters['scriptLoader']['enable']){
                 if(!is_null($config['default'])){
                     foreach($config['default'] as $css){
-                        echo '<link rel="stylesheet" media="screen,projection,tv" href="/' . $css . '?v=' . md5($this->getPresenter()->context->parameters['wwwDir'] . '/css/' . $css) . '">';
+                        echo '<link rel="stylesheet" media="screen,projection,tv" href="/' . $css . '?v=' . md5(file_get_contents($this->getPresenter()->context->parameters['wwwDir'] . '/' . $css)) . '">';
                     }
                 }
             }else{
@@ -105,19 +105,7 @@ class ScriptLoader extends Control{
                     file_put_contents($this->getPresenter()->context->parameters['wwwDir'] . '/css/css'  . $this->getPostfix($isMobile) . '.css', $cssFile);
                 }
 
-                echo('<script>
-          var cb = function() {
-            var l = document.createElement(\'link\'); l.rel = \'stylesheet\';
-            l.href = \'/css/css'  . $this->getPostfix($isMobile) . '.css?' . md5($this->getPresenter()->context->parameters['wwwDir'] . '/css/css'  . $this->getPostfix($isMobile) . '.css') . '\';
-            var h = document.getElementsByTagName(\'head\')[0]; h.parentNode.insertBefore(l, h);
-          };
-          var raf = requestAnimationFrame || mozRequestAnimationFrame ||
-              webkitRequestAnimationFrame || msRequestAnimationFrame;
-          if (raf) raf(cb);
-          else window.addEventListener(\'load\', cb);
-        </script>');
-
-                //echo '<link rel="stylesheet" media="screen,projection,tv" href="/css/css.css">';
+                echo '<link rel="stylesheet" media="screen,projection,tv" href="/css/css.css">';
             }
         }
     }
@@ -128,7 +116,7 @@ class ScriptLoader extends Control{
 
         if(!$this->getPresenter()->context->parameters['scriptLoader']['enable']){
             foreach($config['critical'] as $js){
-                echo '<script src="/' . $js . '?v=' . md5($this->getPresenter()->context->parameters['wwwDir'] . '/js/' . $js) . '"></script>';
+                echo '<script src="/' . $js . '?v=' . md5(file_get_contents($this->getPresenter()->context->parameters['wwwDir'] . '/' . $js)) . '"></script>';
             }
         }else{
 
@@ -158,7 +146,7 @@ class ScriptLoader extends Control{
         if(!$this->getPresenter()->context->parameters['scriptLoader']['enable']){
             if(!is_null($config)){
                 foreach($config as $js){
-                    echo '<script src="/' . $js . '?v=' . md5($this->getPresenter()->context->parameters['wwwDir'] . '/js/' . $js) . '"></script>';
+                    echo '<script src="/' . $js . '?v=' . md5(file_get_contents($this->getPresenter()->context->parameters['wwwDir'] . '/' . $js)) . '"></script>';
                 }
             }
         }else{
@@ -180,18 +168,6 @@ class ScriptLoader extends Control{
 
                 file_put_contents($this->getPresenter()->context->parameters['wwwDir'] . '/js/js' . $this->getPostfix($isMobile) . '.js', $jsFile);
             }
-
-            /*echo('<script>
-                var cb = function() {
-                  var l = document.createElement(\'script\');
-                  l.src = \'/js/js.js\';
-                  var h = document.getElementsByTagName(\'head\')[0]; h.parentNode.insertBefore(l, h);
-                };
-                var raf = requestAnimationFrame || mozRequestAnimationFrame ||
-                    webkitRequestAnimationFrame || msRequestAnimationFrame;
-                if (raf) raf(cb);
-                else window.addEventListener(\'load\', cb);
-              </script>');*/
 
             echo '<script src="/js/js' . $this->getPostfix($isMobile) . '.js?v=' . md5($this->getPresenter()->context->parameters['wwwDir'] . '/js/js' . $this->getPostfix($isMobile) . '.js') . '" defer></script>';
         }

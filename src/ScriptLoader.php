@@ -105,7 +105,7 @@ class ScriptLoader extends Control{
                     file_put_contents($this->getPresenter()->context->parameters['wwwDir'] . '/css/css'  . $this->getPostfix($isMobile) . '.css', $cssFile);
                 }
 
-                echo '<link rel="stylesheet" media="screen,projection,tv" href="/css/css.css">';
+                echo '<link rel="stylesheet" media="screen,projection,tv" href="/css/css'  . $this->getPostfix($isMobile) . '.css?v=' . md5(file_get_contents($this->getPresenter()->context->parameters['wwwDir'] . '/css/css'  . $this->getPostfix($isMobile) . '.css')) . '">';
             }
         }
     }
@@ -169,7 +169,7 @@ class ScriptLoader extends Control{
                 file_put_contents($this->getPresenter()->context->parameters['wwwDir'] . '/js/js' . $this->getPostfix($isMobile) . '.js', $jsFile);
             }
 
-            echo '<script src="/js/js' . $this->getPostfix($isMobile) . '.js?v=' . md5($this->getPresenter()->context->parameters['wwwDir'] . '/js/js' . $this->getPostfix($isMobile) . '.js') . '" defer></script>';
+            echo '<script src="/js/js' . $this->getPostfix($isMobile) . '.js?v=' . md5(file_get_contents($this->getPresenter()->context->parameters['wwwDir'] . '/js/js' . $this->getPostfix($isMobile) . '.js')) . '" defer></script>';
         }
     }
 }
